@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dvolver-worker-gpu-deployment
+  labels:
+    app: dvolver-worker-gpu
+spec:
+  replicas: 32
+  selector:
+    matchLabels:
+      app: dvolver-worker-gpu
+  template:
+    metadata:
+      labels:
+        app: dvolver-worker-gpu
+    spec:
+      containers:
+      - name: dvolver-worker-gpu
+        image: <image_name>
+        command:
+        - python
+        - worker.py
+        env:
+        - name: PYTHONUNBUFFERED # need this for python script in dettached mode
+          value: "0"
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            #cloud-tpus.google.com/v2: 8
+            #cloud-tpus.google.com/preemptible-v2: 8
+      nodeSelector:
+        dvolver: worker-gpu
+      tolerations:
+      - key: app
+        operator: Equal
+        value: dvolver
+        effect: NoSchedule

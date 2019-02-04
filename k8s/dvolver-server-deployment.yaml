@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dvolver-server-deployment
+  labels:
+    app: dvolver-server
+spec:
+  replicas: 1 # don't change this value
+  selector:
+    matchLabels:
+      app: dvolver-server
+  template:
+    metadata:
+      labels:
+        app: dvolver-server
+    spec:
+      containers:
+      - name: dvolver-server
+        image: <image_name>
+        command:
+        - python
+        - server.py
+        - --search_method=genetic
+        - --train-mode=search
+        - --data-dir=$(DATA_BUCKET)
+        - --job-dir=$(MODEL_BUCKET)
+        env:
+        - name: DATA_BUCKET
+          value: "gs://<cifar10_bucket>"
+        - name: MODEL_BUCKET
+          value: "gs://<results_bucket>"
+        - name: PYTHONUNBUFFERED # need this for python script in dettached mode
+          value: "0"
+      nodeSelector:
+        dvolver: server
+      tolerations:
+      - key: app
+        operator: Equal
+        value: dvolver
+        effect: NoSchedule

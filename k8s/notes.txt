@@ -1,0 +1,9 @@
+kubectl create -f rabbitmq-deployment.yaml
+
+
+# expose rabbitmq management port to internet on port 80
+kubectl expose deployment rabbitmq-deployment --type=LoadBalancer --name=rabbitmq-management-external --port=80 --target-port=15672
+
+
+# resize node pool to 1 node
+gcloud container clusters resize dvolver-k8s --node-pool dvolver-broker-pool --size 1
